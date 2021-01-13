@@ -32,15 +32,15 @@ public class AtmosFixedWing : MonoBehaviour
     private Vector3 localVelocity;
     private float angleOfAttack;
 
-    public Vector3 liftVector;
-    public float liftForce = 0f;
+    private Vector3 liftVector;
+    private float liftForce = 0f;
     private float liftCoefficient = 0f;
-    public Vector3 liftDirection;
+    private Vector3 liftDirection;
 
-    public Vector3 dragVector;
-    public float dragForce = 0f;
+    private Vector3 dragVector;
+    private float dragForce = 0f;
     private float dragCoefficient = 0f;
-    public Vector3 dragDirection;
+    private Vector3 dragDirection;
     
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -49,7 +49,9 @@ public class AtmosFixedWing : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (wingArea == 0f) {
+            wingArea = transform.localScale.x * transform.localScale.z * 0.5f;
+        }
     }
 
     // Awake is called upon rigidbody physics activation
@@ -57,14 +59,8 @@ public class AtmosFixedWing : MonoBehaviour
         rb = GetComponentInParent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    // Fixed Update is called once per physics frame
-    void FixedUpdate()
+    // Apply Force is called every FixedUpdate
+    public void ApplyForce()
     {
         localVelocity = transform.InverseTransformDirection(rb.GetPointVelocity(rb.transform.position));
         localVelocity.x = 0f;
@@ -82,4 +78,33 @@ public class AtmosFixedWing : MonoBehaviour
         dragDirection = -rb.velocity.normalized;
         dragVector = dragForce * dragDirection;
     }
+    
+    public AtmosFixedWingDebugData GetDebugData()
+    {
+        AtmosFixedWingDebugData fwDebug = new AtmosFixedWingDebugData();
+        fwDebug.aoa = angleOfAttack;
+        fwDebug.cL = liftCoefficient;
+        fwDebug.cD = dragCoefficient;
+        fwDebug.lf = liftForce;
+        fwDebug.ld  = liftDirection;
+        fwDebug.lv = liftVector;
+        fwDebug.df = dragForce;
+        fwDebug.dd = dragDirection;
+        fwDebug.dv = dragVector;
+        fwDebug.pos = transform.position;
+        return fwDebug;
+    }
+}
+
+public class AtmosFixedWingDebugData {
+    public float aoa;
+    public float cL;
+    public float cD;
+    public float lf;
+    public Vector3 ld;
+    public Vector3 lv;
+    public float df;
+    public Vector3 dd;
+    public Vector3 dv;
+    public Vector3 pos;
 }

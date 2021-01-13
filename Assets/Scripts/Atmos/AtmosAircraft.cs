@@ -26,12 +26,6 @@ public class AtmosAircraft : MonoBehaviour
     private Vector3 gravityForce;
     /* --------------------------------------- Thruster Config -------------------------------------- */
     public List<AtmosThruster> thrusters;
-    public float maxEngineThrust;
-    public float maxABThrust;
-    public float throttleRange = 1.0f;
-    public float throttleABThreshold = 0.9f;
-    public float startThrottle = 0f;
-    private float throttle;
 
     /* ---------------------------------------------------------------------------------------------- */
     /*                                             METHODS                                            */
@@ -45,63 +39,70 @@ public class AtmosAircraft : MonoBehaviour
     // Awake is called when the Rigidbody wakes up to physics
     void Awake()
     {
-
+        rb.mass = emptyMass + (fuelWeight * initialFuelLoad);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     // Fixed Update is called once per physics frame
     void FixedUpdate()
     {
+        Thrust();
+        Gravity();
+        Drag();
+        DeflectControlSurfaces();
+        SurfaceLiftAndDrag();
 
+        DebugPlane();
     }
 
     // Custom Methods
     // Debug Plane is called every FixedUpdate to show debug values
     void DebugPlane()
     {
-
+        Debug.DrawRay(rb.transform.position, 0.001f*-9.81f*rb.mass*Vector3.up, Color.yellow);
+        for (int i = 0; i < fixedWings.Count; i++) {
+            AtmosFixedWingDebugData fwDebug = fixedWings[i].GetDebugData();
+            Debug.DrawRay(fwDebug.pos, 0.001f*(fwDebug.lv), Color.blue);
+            Debug.DrawRay(fwDebug.pos, 0.001f*(fwDebug.dv), Color.red);
+        }
     }
 
     // Deflect Control Surfaces is called every FixedUpdate and moves all ControlSurfaces
     void DeflectControlSurfaces()
+    {   
+
+    }
+
+    // Surface Lift and Drag is called every FixedUpdate and adds lift/drag vectors for all surfaces
+    void SurfaceLiftAndDrag()
+    {
+        for (int i = 0; i < fixedWings.Count; i++) {
+            fixedWings[i].ApplyForce();
+        }
+    }
+
+    // Drag is called every FixedUpdate and adds all drag for all non-CS/FW objects
+    void Drag()
     {
 
     }
 
-    // Calculate Control Surfaces is called every FixedUpdate and adds lift vectors
-    void CalculateLiftForAllSurfaces()
+    // Thrust is called every FixedUpdate and adds all thrust from the engines
+    void Thrust()
     {
-
+        for (int i = 0; i < thrusters.Count; i++) {
+            thrusters[i].ApplyForce();
+        }
     }
 
-    // Calculate Control Surfaces is called every FixedUpdate and adds drag vectors
-    void CalculateDragForAllSurfaces() {
-
-    }
-
-    // Calculate Drag is called every FixedUpdate and adds all drag for all non-CS/FW objects
-    void CalculateDrag()
+    // Gravity is called every Fixed Update and adds the rigidbody's current mass
+    void Gravity()
     {
-
-    }
-
-    // Calculate Thrust is called every FixedUpdate and adds all thrust from the engines
-    void CalculateThrust() {
-
-    }
-
-    // Calculate Gravity is called every Fixed Update and adds the rigidbody's current mass
-    void CalculateGravity() {
-
-    }
-
-    // Calculate Forces is called every fixed update and combines all force equations
-    void CalculateForces() {
-        
+        rb.AddForceAtPosition(-9.81f*rb.mass*Vector3.up, rb.transform.position);
     }
 }
