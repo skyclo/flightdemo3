@@ -9,6 +9,7 @@ public class AtmosAircraft : MonoBehaviour
     /* ---------------------------------------------------------------------------------------------- */
     /* ------------------------------------------ Rigidbody ----------------------------------------- */
     public Rigidbody rb;
+    public GameObject fuselage;
     public float emptyMass;
     public float fuelWeight;
     public float initialFuelLoad = 1f;
@@ -64,7 +65,22 @@ public class AtmosAircraft : MonoBehaviour
     // Debug Plane is called every FixedUpdate to show debug values
     void DebugPlane()
     {
-        Debug.DrawRay(rb.transform.position, 0.001f*-9.81f*rb.mass*Vector3.up, Color.yellow);
+        Debug.DrawRay(fuselage.transform.position, 0.001f*-9.81f*rb.mass*Vector3.up, Color.yellow);
+
+        for (int i = 0; i < thrusters.Count; i++) {
+            AtmosThrusterDebug thrusterDebug = thrusters[i].GetDebugData();
+            Debug.DrawRay(thrusterDebug.pos, 0.001f*(thrusterDebug.thrustForce), Color.red);
+            if (thrusterDebug.throttle > thrusterDebug.throttleABThreshold)
+            {
+                Debug.Log(((thrusterDebug.maxDryThrust) + ((thrusterDebug.maxWetThrust - thrusterDebug.maxDryThrust) * ((thrusterDebug.throttle - thrusterDebug.throttleABThreshold) * 10))));
+            }
+            else
+            {
+                Debug.Log(thrusterDebug.maxDryThrust * (thrusterDebug.throttle /  thrusterDebug.throttleABThreshold));
+            }
+            
+        }
+
         for (int i = 0; i < fixedWings.Count; i++) {
             AtmosFixedWingDebugData fwDebug = fixedWings[i].GetDebugData();
             Debug.DrawRay(fwDebug.pos, 0.001f*(fwDebug.lv), Color.blue);
@@ -103,6 +119,6 @@ public class AtmosAircraft : MonoBehaviour
     // Gravity is called every Fixed Update and adds the rigidbody's current mass
     void Gravity()
     {
-        rb.AddForceAtPosition(-9.81f*rb.mass*Vector3.up, rb.transform.position);
+        rb.AddForceAtPosition(-9.81f*rb.mass*Vector3.up, fuselage.transform.position);
     }
 }
